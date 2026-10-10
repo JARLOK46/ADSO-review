@@ -23,7 +23,7 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 5. Add the fake AI gateway contract boundary and deterministic fixture. **Done**
 6. Verify and publish each work unit on `feature/source-intake-slice`. **Done**
 7. Add runtime validation for AI gateway requests and evidence citations. **Done**
-8. Verify and publish runtime validation work unit. **In progress**
+8. Verify and publish runtime validation work unit. **Done**
 
 ## Acceptance criteria
 - Architecture is traceable to the specification and explicitly labels assumptions.
@@ -54,4 +54,5 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Runtime validation now returns a discriminated validation result and rejects malformed requests with `InvalidAgentRequestError` before deterministic processing; missing authorized evidence still produces `needs_review`.
 - Focused gateway tests pass: 13/13; `npm run typecheck` passes; `git diff --check` passes. No commit or push was performed for this work unit.
 - Re-verification passed after adding the explicit `needs_review` status assertion: focused gateway tests 13/13, full suite 21/21, typecheck, and diff checks.
+- `5a7a677` — `feat(ai): validate gateway requests`; pushed to `origin/feature/source-intake-slice`.
 - Native review preflight was attempted after publication but could not evaluate because negotiated target status reported an unrelated-target inconsistency; no review mutation or lineage was started.
