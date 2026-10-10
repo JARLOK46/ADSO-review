@@ -16,9 +16,9 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - No automatic academic decision without evaluator confirmation.
 
 ## Tasks
-1. Architecture and infrastructure document.
-2. Repository guidance in `AGENTS.md`.
-3. Git Flow initialization and baseline publication.
+1. Architecture and infrastructure document. **Done**
+2. Repository guidance in `AGENTS.md`. **Done**
+3. Git Flow initialization and baseline publication. **Done**
 
 ## Acceptance criteria
 - Architecture is traceable to the specification and explicitly labels assumptions.
@@ -35,4 +35,5 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Repository workflow documented in `AGENTS.md`.
 
 ## Commits
-- Pending baseline commit and Git Flow publication.
+- `d6cd94b` — `docs: define ADSO reviewer architecture baseline` (architecture, infrastructure, AGENTS.md, ODD task record).
+- Git Flow configured with `develop` as integration and `main` as production branch; both pushed to `origin`.
