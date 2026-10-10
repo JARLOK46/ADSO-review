@@ -19,9 +19,9 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 1. Architecture and infrastructure document. **Done**
 2. Repository guidance in `AGENTS.md`. **Done**
 3. Git Flow initialization and baseline publication. **Done**
-4. Implement the source-intake domain slice with deterministic tests. **In progress**
+4. Implement the source-intake domain slice with deterministic tests. **Done**
 5. Add the fake AI gateway contract boundary and deterministic fixture. **Pending**
-6. Verify and publish each work unit on `feature/source-intake-slice`. **Pending**
+6. Verify and publish each work unit on `feature/source-intake-slice`. **In progress**
 
 ## Acceptance criteria
 - Architecture is traceable to the specification and explicitly labels assumptions.
@@ -41,3 +41,6 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - `d6cd94b` — `docs: define ADSO reviewer architecture baseline` (architecture, infrastructure, AGENTS.md, ODD task record).
 - Git Flow configured with `develop` as integration and `main` as production branch; both pushed to `origin`.
 - Initial implementation baseline: strict TypeScript on Node.js 22+ with Vitest; framework and cloud adapters remain deferred.
+- Source-intake implementation in `src/domain/source-intake.ts` registers file and HTTPS URL sources with workspace, project, actor, size, SHA-256, and deterministic ID/time dependencies; invalid metadata and URL inputs are rejected.
+- Focused source-intake tests pass: 8/8 in `tests/source-intake.test.ts`.
+- Typecheck passes with `skipLibCheck: true`; this is the dependency declaration boundary for external library declarations and does not relax checking of project source or tests.

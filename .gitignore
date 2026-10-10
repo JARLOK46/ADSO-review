@@ -1,0 +1,11 @@
+node_modules/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Local tooling output
+coverage/
+*.log
+.DS_Store
