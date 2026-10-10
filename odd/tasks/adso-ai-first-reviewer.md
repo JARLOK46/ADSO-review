@@ -50,6 +50,7 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Secure URL success provenance now exposes the canonical redirect chain and explicit retrieval limitations as queryable fields; deterministic success and production `fetchPublicUrl` reader-cancellation tests cover the contract without real network access.
 - Final URL retrieval verification follow-up rejects the documented IPv4 ranges `192.0.2.0/24`, `198.51.100.0/24`, and `203.0.113.0/24`; every 3xx response body is closed before `bad_status`, including responses without `Location`. Focused retrieval tests pass 30/30 and `npm run typecheck` passes; no commit or push was performed.
 - DNS approval is now pinned through the transport contract: the validated address list is passed to each request, and production HTTPS uses Node's request API with the selected address, an address-only `lookup` callback (no fallback resolution), and original-host TLS SNI/Host metadata. Deterministic tests cover address propagation and streamed response cleanup.
+- `91fccd1` — `feat(web): securely retrieve public URL sources`; pushed to `origin/feature/source-intake-slice`. Final verification passed: retrieval tests 31/31, full suite 62/62, typecheck, and diff checks.
 
 ## Commits
 - `d6cd94b` — `docs: define ADSO reviewer architecture baseline` (architecture, infrastructure, AGENTS.md, ODD task record).
