@@ -133,6 +133,11 @@ export type AgentUsage = {
   outputTokens: number;
 };
 
+export type AgentProvenance = {
+  provider: string;
+  model: string;
+};
+
 export type AgentResult = {
   schemaVersion: "1.0";
   runId: string;
@@ -142,6 +147,7 @@ export type AgentResult = {
   limitations: string[];
   openQuestions: string[];
   usage: AgentUsage;
+  provenance?: AgentProvenance;
 };
 
 export interface AiGateway {

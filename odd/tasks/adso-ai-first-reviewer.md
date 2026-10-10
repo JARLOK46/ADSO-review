@@ -24,6 +24,9 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 6. Verify and publish each work unit on `feature/source-intake-slice`. **Done**
 7. Add runtime validation for AI gateway requests and evidence citations. **Done**
 8. Verify and publish runtime validation work unit. **Done**
+9. Record Ollama Cloud provider and secret-handling decision in architecture docs. **Done**
+10. Implement the Ollama Cloud gateway adapter with contract tests. **Done**
+11. Verify and publish the Ollama Cloud work unit. **Pending**
 
 ## Acceptance criteria
 - Architecture is traceable to the specification and explicitly labels assumptions.
@@ -56,3 +59,7 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Re-verification passed after adding the explicit `needs_review` status assertion: focused gateway tests 13/13, full suite 21/21, typecheck, and diff checks.
 - `5a7a677` — `feat(ai): validate gateway requests`; pushed to `origin/feature/source-intake-slice`.
 - Native review preflight was attempted after publication but could not evaluate because negotiated target status reported an unrelated-target inconsistency; no review mutation or lineage was started.
+- Ollama Cloud adapter uses an injected HTTP transport, configurable base URL/model/timeout, and injected API key; it validates application requests and structured AgentResult content without vendor SDKs or process.env access.
+- Follow-up correction requires an explicit configured model (no invented provider default) and serializes only the task plus authorized evidence into the deterministic provider message payload.
+- Focused Ollama Cloud contract tests and typecheck are pending re-verification after the correction. No commit or push was performed for this work unit.
+- Re-verification passed: Ollama adapter tests 10/10, full suite 31/31, `npm run typecheck`, and `git diff --check`. No provider SDK, `process.env`, or secret leakage found.

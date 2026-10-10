@@ -12,19 +12,19 @@ Use managed, replaceable primitives behind a container boundary. The baseline is
 | Queue | Durable managed queue | At-least-once job delivery and delayed retries |
 | Object storage | S3-compatible bucket | Original sources, derived artifacts, generated reports |
 | Cache/coordination | Optional Redis-compatible service | Rate limits and short-lived progress fan-out, never canonical state |
-| Model access | Internal AI gateway | Provider adapters, policy, usage, redaction, structured output |
+| Model access | Internal AI gateway | Ollama Cloud is the initial approved infrastructure adapter; the gateway owns policy, usage/provenance, redaction, and structured-output validation |
 | Observability | OpenTelemetry-compatible metrics/logs/traces | Correlation, latency, failures, cost, queue health |
 
 ## Environments
 
 ### Local
-Docker Compose may provide PostgreSQL, an S3-compatible emulator, a queue emulator, and a fake AI gateway. Use synthetic sources only. Local mode must work without external model credentials.
+Docker Compose may provide PostgreSQL, an S3-compatible emulator, a queue emulator, and a fake AI gateway. Use synthetic sources only. Local mode must work without external model credentials and can roll back from Ollama Cloud behavior to the deterministic fake gateway.
 
 ### Staging
-Use isolated workspace and buckets, masked/synthetic data, real migration and backup paths, a deterministic fake model for CI, and an explicitly approved non-production provider for exploratory runs.
+Use isolated workspace and buckets, masked/synthetic data, real migration and backup paths, a deterministic fake model for CI, and Ollama Cloud only through the approved gateway adapter for explicitly authorized non-production exploratory runs. Provider credentials are injected from environment-specific secret management; they are never committed or copied into configuration files.
 
 ### Production
-Use private networking where available, managed database backups and point-in-time recovery, versioned object buckets, least-privilege service identities, secret-manager integration, malware scanning, WAF/rate limiting, and separate model credentials per environment.
+Use private networking where available, managed database backups and point-in-time recovery, versioned object buckets, least-privilege service identities, secret-manager integration, malware scanning, WAF/rate limiting, and separate model credentials per environment. Inject the Ollama Cloud API key at runtime through the environment's secret manager or protected environment variables; never place it in source control, prompts, reports, fixtures, or logs.
 
 ## Deployment topology
 
@@ -51,11 +51,12 @@ The API accepts commands quickly and returns a review/job identifier. Workers ow
 ## Reliability and cost controls
 
 - At-least-once jobs require idempotent handlers keyed by `review_id`, `agent`, `source_snapshot_id`, and phase.
-- Use exponential backoff with a dead-letter queue; classify permanent validation errors separately from transient provider failures.
+- Use bounded request timeouts for provider calls and exponential backoff with a dead-letter queue; classify permanent validation errors, invalid structured responses, and transient provider failures separately.
 - Persist checkpoints after each phase and retain partial artifacts for diagnosis.
 - Apply per-workspace concurrency, file-size, token, time, and spend budgets.
-- Use circuit breakers and provider fallback only when policy permits; a fallback must be visible in the run record.
+- Use circuit breakers around provider calls. On an Ollama Cloud outage or open circuit, return an explicit retryable failure or `needs_review` according to the run policy rather than inventing evidence; record the provider failure and any fallback in the run record.
 - Autoscale workers from queue depth and age, with a bounded maximum to protect model budgets.
+- Keep the deterministic fake gateway as the rollback path for local and CI execution, so provider configuration can be disabled without changing domain or application code.
 
 ## Security operations
 
@@ -69,7 +70,7 @@ The API accepts commands quickly and returns a review/job identifier. Workers ow
 
 ## Observability
 
-Every request, job, model call, and report carries a correlation ID and workspace-safe identifiers. Never log source contents, prompts, tokens, signed URLs, or secrets.
+Every request, job, model call, and report carries a correlation ID and workspace-safe identifiers. Never log source contents, prompts, tokens, signed URLs, API keys, or other secrets. Secret values must not appear in source control, fixtures, reports, or diagnostic output.
 
 Track:
 - API latency/error rate and authorization denials.

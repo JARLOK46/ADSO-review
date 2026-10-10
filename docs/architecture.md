@@ -28,7 +28,8 @@ Browser
        -> Review domain + authorization
        -> Source service -> Object storage
        -> Review orchestrator -> Durable queue -> Worker pool
-                                  |-> AI gateway -> approved/local model providers
+                                  |-> AI gateway -> Ollama Cloud adapter (initially approved)
+                                  |                  -> deterministic fake gateway (local/CI)
                                   |-> Evidence extraction adapters
        -> Relational database + audit log
        -> Report renderer
@@ -75,7 +76,7 @@ The orchestrator owns phase ordering, context minimization, dependency checks, c
 - `rubric-judge`: maps corroborated evidence to criteria and severity.
 - `feedback-writer`: converts accepted findings into prioritized, actionable feedback.
 
-The AI gateway adapts model providers and records model, version, parameters, safety policy, and token/cost metadata. Domain code depends only on gateway interfaces.
+The AI gateway adapts model providers and records model, version, parameters, safety policy, and usage provenance for every call. Domain and application code remain provider-neutral and depend only on gateway interfaces; Ollama Cloud is an infrastructure adapter, not a domain dependency. A provider outage is represented as an explicit retryable failure or `needs_review` outcome, and an invalid or non-conforming structured response is rejected explicitly rather than treated as evidence.
 
 ### Agent result contract
 
@@ -148,10 +149,10 @@ The matrix is derived from sections 3–13 of the product specification. The DOC
 | Async execution | Durable queue with worker jobs | Yes |
 | File store | S3-compatible object storage | Yes |
 | Frontend | Server-rendered or SPA selected during UX spike | Yes |
-| Model access | Internal AI gateway with adapters | Yes |
+| Model access | Internal AI gateway with replaceable adapters; Ollama Cloud is the initial approved provider and the deterministic fake gateway remains the local/CI fallback | Yes |
 | Deployment | Containerized services, managed primitives first | Yes |
 
-Open product decisions: institutional identity provider, supported maximum source sizes, retention duration by role/institution, rubric ownership/approval flow, and first approved model providers. Do not implement integrations until these are validated.
+Open product decisions: institutional identity provider, supported maximum source sizes, retention duration by role/institution, rubric ownership/approval flow, and the model/provider configuration and operating limits for future providers. Ollama Cloud is the initial approved provider decision; its adapter remains replaceable, and no provider endpoint or model identifier is fixed by this document. Do not implement integrations until their configuration and operational constraints are validated.
 
 ## Initial implementation baseline
 
