@@ -44,3 +44,4 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Source-intake implementation in `src/domain/source-intake.ts` registers file and HTTPS URL sources with workspace, project, actor, size, SHA-256, and deterministic ID/time dependencies; invalid metadata and URL inputs are rejected.
 - Focused source-intake tests pass: 8/8 in `tests/source-intake.test.ts`.
 - Typecheck passes with `skipLibCheck: true`; this is the dependency declaration boundary for external library declarations and does not relax checking of project source or tests.
+- `4ea7649` — `feat(source-intake): register project sources` (source-intake implementation, deterministic tests, TypeScript baseline, and repository tracking metadata); pushed to `origin/feature/source-intake-slice`.
