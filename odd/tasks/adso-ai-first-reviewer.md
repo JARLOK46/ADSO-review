@@ -20,8 +20,8 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 2. Repository guidance in `AGENTS.md`. **Done**
 3. Git Flow initialization and baseline publication. **Done**
 4. Implement the source-intake domain slice with deterministic tests. **Done**
-5. Add the fake AI gateway contract boundary and deterministic fixture. **In progress**
-6. Verify and publish each work unit on `feature/source-intake-slice`. **Pending**
+5. Add the fake AI gateway contract boundary and deterministic fixture. **Done**
+6. Verify and publish each work unit on `feature/source-intake-slice`. **Done**
 
 ## Acceptance criteria
 - Architecture is traceable to the specification and explicitly labels assumptions.
@@ -48,3 +48,5 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Fake AI gateway contract implemented in `src/application/ai-gateway.ts` with deterministic fixture in `src/infrastructure/fake-ai-gateway.ts` and 3 focused tests in `tests/fake-ai-gateway.test.ts`.
 - Verification passed: focused gateway tests 3/3, full suite 11/11, `npm run typecheck`, and `git diff --check`.
 - Boundary review found no vendor SDK, network call, secret, environment, or OpenCode coupling. Follow-up: add runtime validation for malformed requests/citations before untrusted input reaches the gateway.
+- `1c8a45b` — `feat(ai): add provider-neutral fake gateway`; pushed to `origin/feature/source-intake-slice`.
+- Native review preflight was attempted after publication but could not evaluate because negotiated target status reported an unrelated-target inconsistency; no review mutation or lineage was started.
