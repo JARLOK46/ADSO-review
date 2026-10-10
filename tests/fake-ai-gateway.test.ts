@@ -3,6 +3,7 @@ import {
   type AgentRequest,
   type AgentResult,
   type AiGateway,
+  validateAgentRequest,
 } from "../src/application/ai-gateway.js";
 import {
   createFakeAiGateway,
@@ -65,6 +66,49 @@ describe("provider-neutral AI gateway contract", () => {
     expect(first.agent).toBe(request.agent);
   });
 
+  it("validates a well-formed request without normalizing it", () => {
+    expect(validateAgentRequest(request)).toEqual({ ok: true, value: request });
+  });
+
+  it.each([
+    ["schemaVersion", { schemaVersion: "2.0" }],
+    ["runId", { runId: "   " }],
+    ["task", { task: "" }],
+    ["agent", { agent: "unknown-agent" }],
+    ["evidence", { evidence: [null] }],
+    ["citation locator", {
+      evidence: [{ sourceId: "source-1", locator: " ", excerpt: "text" }],
+    }],
+    ["citation sourceId", {
+      evidence: [{ sourceId: "\t", locator: "page 1", excerpt: "text" }],
+    }],
+    ["evidence excerpt", {
+      evidence: [{ sourceId: "source-1", locator: "page 1", excerpt: "" }],
+    }],
+  ])("rejects malformed %s with an explicit validation error", (field, override) => {
+    const result = validateAgentRequest({ ...request, ...override });
+
+    expect(result).toEqual({
+      ok: false,
+      error: {
+        code: "invalid_agent_request",
+        path: field === "citation locator" || field === "citation sourceId"
+          ? `evidence[0].${field === "citation locator" ? "locator" : "sourceId"}`
+          : field === "evidence" ? "evidence[0]"
+          : field === "evidence excerpt" ? "evidence[0].excerpt"
+          : field,
+        message: expect.any(String),
+      },
+    });
+  });
+
+  it("rejects malformed requests before deterministic processing", () => {
+    expect(() => deterministicAgentResult({
+      ...request,
+      agent: "not-an-agent",
+    } as unknown as AgentRequest)).toThrowError(/invalid_agent_request/);
+  });
+
   it("preserves limitations and open questions in a result", () => {
     const result = deterministicAgentResult({
       ...request,
@@ -72,6 +116,7 @@ describe("provider-neutral AI gateway contract", () => {
       task: "Review unavailable evidence.",
     });
 
+    expect(result.status).toBe("needs_review");
     expect(result.observations).toEqual([]);
     expect(result.limitations).toEqual([
       "No authorized evidence was available for this request.",

@@ -1,12 +1,13 @@
 import {
-  type AgentRequest,
+  assertValidAgentRequest,
   type AgentResult,
   type AiGateway,
 } from "../application/ai-gateway.js";
 
 const NO_EVIDENCE = "No authorized evidence was available for this request.";
 
-export function deterministicAgentResult(request: AgentRequest): AgentResult {
+export function deterministicAgentResult(input: unknown): AgentResult {
+  const request = assertValidAgentRequest(input);
   const hasEvidence = request.evidence.length > 0;
 
   return {
