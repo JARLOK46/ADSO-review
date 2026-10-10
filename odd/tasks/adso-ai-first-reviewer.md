@@ -20,8 +20,8 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 2. Repository guidance in `AGENTS.md`. **Done**
 3. Git Flow initialization and baseline publication. **Done**
 4. Implement the source-intake domain slice with deterministic tests. **Done**
-5. Add the fake AI gateway contract boundary and deterministic fixture. **Pending**
-6. Verify and publish each work unit on `feature/source-intake-slice`. **In progress**
+5. Add the fake AI gateway contract boundary and deterministic fixture. **In progress**
+6. Verify and publish each work unit on `feature/source-intake-slice`. **Pending**
 
 ## Acceptance criteria
 - Architecture is traceable to the specification and explicitly labels assumptions.
@@ -45,3 +45,6 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Focused source-intake tests pass: 8/8 in `tests/source-intake.test.ts`.
 - Typecheck passes with `skipLibCheck: true`; this is the dependency declaration boundary for external library declarations and does not relax checking of project source or tests.
 - `4ea7649` — `feat(source-intake): register project sources` (source-intake implementation, deterministic tests, TypeScript baseline, and repository tracking metadata); pushed to `origin/feature/source-intake-slice`.
+- Fake AI gateway contract implemented in `src/application/ai-gateway.ts` with deterministic fixture in `src/infrastructure/fake-ai-gateway.ts` and 3 focused tests in `tests/fake-ai-gateway.test.ts`.
+- Verification passed: focused gateway tests 3/3, full suite 11/11, `npm run typecheck`, and `git diff --check`.
+- Boundary review found no vendor SDK, network call, secret, environment, or OpenCode coupling. Follow-up: add runtime validation for malformed requests/citations before untrusted input reaches the gateway.
