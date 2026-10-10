@@ -11,7 +11,7 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Initialize Git Flow and publish the documentation baseline.
 
 ## Non-goals
-- No application code or provider-specific implementation yet.
+- No provider-specific implementation yet.
 - No irreversible cloud provisioning.
 - No automatic academic decision without evaluator confirmation.
 
@@ -19,6 +19,9 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 1. Architecture and infrastructure document. **Done**
 2. Repository guidance in `AGENTS.md`. **Done**
 3. Git Flow initialization and baseline publication. **Done**
+4. Implement the source-intake domain slice with deterministic tests. **In progress**
+5. Add the fake AI gateway contract boundary and deterministic fixture. **Pending**
+6. Verify and publish each work unit on `feature/source-intake-slice`. **Pending**
 
 ## Acceptance criteria
 - Architecture is traceable to the specification and explicitly labels assumptions.
@@ -37,3 +40,4 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 ## Commits
 - `d6cd94b` — `docs: define ADSO reviewer architecture baseline` (architecture, infrastructure, AGENTS.md, ODD task record).
 - Git Flow configured with `develop` as integration and `main` as production branch; both pushed to `origin`.
+- Initial implementation baseline: strict TypeScript on Node.js 22+ with Vitest; framework and cloud adapters remain deferred.

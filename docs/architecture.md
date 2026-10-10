@@ -153,6 +153,10 @@ The matrix is derived from sections 3–13 of the product specification. The DOC
 
 Open product decisions: institutional identity provider, supported maximum source sizes, retention duration by role/institution, rubric ownership/approval flow, and first approved model providers. Do not implement integrations until these are validated.
 
+## Initial implementation baseline
+
+To make the first vertical slice executable without locking the product to a UI or cloud vendor, the repository will start as a TypeScript package targeting Node.js 22+ with strict types and Vitest for deterministic tests. The first slice is a framework-independent domain/application core; HTTP, PostgreSQL, object storage, and queue adapters are added at their boundaries in later slices. This is a reversible implementation choice and is not a commitment to a particular frontend framework.
+
 ## Delivery stages
 
 1. Documentation and architecture approval.
