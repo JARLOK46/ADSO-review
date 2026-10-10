@@ -6,7 +6,7 @@ Use managed, replaceable primitives behind a container boundary. The baseline is
 
 | Layer | Baseline | Responsibility |
 |---|---|---|
-| Web/API | Containerized application | Authenticated HTTP API, authorization, review commands, report access |
+| Web/API | Containerized application | Browser-facing review workspace and authenticated HTTP API; session/CSRF or equivalent request protection; server-side authorization for every workspace, role, source, URL, evidence, report, and history operation |
 | Worker | Containerized worker pool | Extraction, specialist jobs, orchestration, retries |
 | Database | Managed PostgreSQL-compatible service | Transactional state, snapshots, audit metadata |
 | Queue | Durable managed queue | At-least-once job delivery and delayed retries |
@@ -29,14 +29,15 @@ Use private networking where available, managed database backups and point-in-ti
 ## Deployment topology
 
 ```text
-Internet -> CDN/WAF -> Web/API (N replicas)
-                         |-> PostgreSQL (private)
-                         |-> Queue -> Worker autoscaling (N replicas)
-                         |-> Object storage (private, signed access)
-                         |-> AI gateway -> approved provider or institution endpoint
+Browser -> Internet -> CDN/WAF -> Web/API (N replicas)
+                                  |-> PostgreSQL (private)
+                                  |-> Queue -> Worker autoscaling (N replicas)
+                                  |-> Object storage (private, signed access)
+                                  |-> Server-side URL retrieval boundary
+                                  |-> AI gateway -> approved provider or institution endpoint
 ```
 
-The API accepts commands quickly and returns a review/job identifier. Workers own long-running work. Health checks distinguish process health, dependency readiness, and queue liveness.
+The browser is an untrusted client and never receives broad storage or workspace authority. The Web/API authenticates each request, authorizes it against workspace membership and role, and issues only short-lived, scoped access where needed. The API accepts commands quickly and returns a review/job identifier. Workers own long-running work. Health checks distinguish process health, dependency readiness, and queue liveness.
 
 ## Data and lifecycle controls
 
@@ -47,6 +48,18 @@ The API accepts commands quickly and returns a review/job identifier. Workers ow
 - Apply configurable retention by workspace. Deletion is an asynchronous, auditable workflow that removes original sources, source versions, extracted evidence, agent artifacts, findings, reports, indexes, and other derived objects before closing.
 - Back up the database daily with point-in-time recovery; test restore quarterly. Object storage version retention follows the workspace policy.
 - Queue messages contain IDs and approved references, not secrets or unnecessary source contents.
+
+## Secure HTTPS and Notion source retrieval
+
+The MVP accepts public HTTPS sources, including public Notion pages. Retrieval is a server-side capability of the source service, never a browser-side fetch and never an unrestricted worker network call.
+
+- Maintain an explicit host allow-list for supported public sources; require HTTPS and reject credentials, unsupported schemes, malformed URLs, and unsafe ports.
+- Resolve DNS and reject loopback, link-local, multicast, private, reserved, and otherwise non-public address ranges. Re-check the destination after redirects; cap redirect count and do not allow a redirect to widen the approved host/network boundary.
+- Enforce connection, header, download, and total fetch timeouts plus bounded response size. Abort safely when limits are exceeded; do not parse unbounded responses.
+- Validate content type and parser support, scan downloaded content as applicable, and isolate parsers from broad network access.
+- Store canonical URL, redirect chain, retrieval time, response status/content type, content hash, source version, and limitations as queryable provenance. Store only a non-secret reference to any authorized integration.
+- An unreadable, inaccessible, unverifiable, or limit-exceeding source becomes `needs_review`; retain the failure reason and do not invent evidence.
+- Public-page access does not imply private-page access. A private Notion page requires explicit user/workspace OAuth or integration authorization with least-privilege scopes, secure server-side token storage, revocation handling, and auditable consent. Credentials and tokens must never appear in URLs, prompts, logs, reports, fixtures, or source control.
 
 ## Reliability and cost controls
 
@@ -61,9 +74,11 @@ The API accepts commands quickly and returns a review/job identifier. Workers ow
 ## Security operations
 
 - SSO/OIDC is preferred for institutions; local credentials are acceptable for the initial pilot with MFA-ready boundaries.
-- Roles are enforced server-side: instructor, evaluator, apprentice, coordinator, and administrator.
+- Roles are enforced server-side: instructor, evaluator, apprentice, coordinator, and administrator. The browser cannot bypass these checks by calling APIs, object storage, URL intake, reports, or history endpoints directly.
+- Use secure session cookies or an equivalent authenticated browser session, CSRF protection for state-changing browser requests, strict origin/CORS policy, and short-lived scoped object access.
 - Scan uploads before extraction; run parsers in restricted workers with no broad network access.
-- Allow-list outbound URL fetching and record fetch time, status, and content hash.
+- Public URL retrieval uses the dedicated HTTPS boundary described above: host allow-list, HTTPS-only, redirect revalidation, DNS/private-network protections, response size/time limits, and provenance hashing.
+- Private Notion retrieval is disabled unless an explicit OAuth/integration authorization exists for the relevant workspace/user and source; protect and rotate tokens through secret management, and record consent/revocation events without recording token values.
 - Redact secrets and personal data before model calls where feasible; block prompts that include credentials.
 - Keep audit logs immutable to application identities and alert on cross-workspace access failures, unusual export volume, and repeated provider errors.
 - Define incident response, key rotation, access review, and data-subject deletion procedures before production.
@@ -87,6 +102,8 @@ Alert on stuck reviews, growing queue age, database saturation, repeated provide
 - [ ] Local development works with emulators and a fake AI gateway.
 - [ ] Staging is isolated from production data and credentials.
 - [ ] Production has backups, restore evidence, secret management, and private data paths.
+- [ ] Browser/API authorization is tested server-side for workspace, role, source, URL, report, and history boundaries.
+- [ ] Public HTTPS retrieval enforces allow-listing, HTTPS, redirect/DNS/private-network protections, size/time limits, hashing, provenance, and `needs_review` failures.
 - [ ] Jobs are retry-safe and resumable from persisted checkpoints.
 - [ ] Model/provider policy, budgets, and fallbacks are observable.
 - [ ] Retention and deletion cover originals, derivatives, reports, and indexes.

@@ -27,6 +27,9 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 9. Record Ollama Cloud provider and secret-handling decision in architecture docs. **Done**
 10. Implement the Ollama Cloud gateway adapter with contract tests. **Done**
 11. Verify and publish the Ollama Cloud work unit. **Done**
+12. Document the web review workspace and secure HTTPS/Notion URL intake scope. **Done**
+13. Implement secure URL retrieval and provenance checks. **Done**
+14. Add the framework-neutral web/API review boundary. **Pending**
 
 ## Acceptance criteria
 - Architecture is traceable to the specification and explicitly labels assumptions.
@@ -40,7 +43,13 @@ Translate the product specification in `ADSO-AI-First-Especificacion-y-Prompt.do
 - Remote repository cloned: `https://github.com/JARLOK46/ADSO-review.git`.
 - Architecture decisions documented in `docs/architecture.md`, including a specification traceability matrix.
 - Infrastructure decisions documented in `docs/infrastructure.md`, including consistent deletion scope.
+- Web review workspace, browser-to-server authorization, public HTTPS/Notion MVP assumptions, private Notion authorization requirements, and secure URL retrieval controls documented in `docs/architecture.md` and `docs/infrastructure.md`.
 - Repository workflow documented in `AGENTS.md`.
+- Secure public HTTPS retrieval boundary implemented with injectable transport, DNS resolver, clock, and hasher; production infrastructure now provides Node SHA-256 hashing and fetch/AbortController transport with bounded body streaming, explicit host/subdomain policy, redirect revalidation, response limits, IPv4/IPv6 private/reserved classification, and source/workspace/project/actor provenance. Missing bodies remain unreadable/`needs_review`; deterministic tests cover accepted, blocked, timeout, size, metadata, missing-body, IPv6 safety, and needs_review outcomes.
+- Secure URL retrieval blocker fixed: malformed redirect locations now return `needs_review`/`invalid_url`, redirect bodies are explicitly closed before following redirects, and production fetch readers cancel unconsumed bodies before releasing locks; focused retrieval tests and typecheck pass.
+- Secure URL success provenance now exposes the canonical redirect chain and explicit retrieval limitations as queryable fields; deterministic success and production `fetchPublicUrl` reader-cancellation tests cover the contract without real network access.
+- Final URL retrieval verification follow-up rejects the documented IPv4 ranges `192.0.2.0/24`, `198.51.100.0/24`, and `203.0.113.0/24`; every 3xx response body is closed before `bad_status`, including responses without `Location`. Focused retrieval tests pass 30/30 and `npm run typecheck` passes; no commit or push was performed.
+- DNS approval is now pinned through the transport contract: the validated address list is passed to each request, and production HTTPS uses Node's request API with the selected address, an address-only `lookup` callback (no fallback resolution), and original-host TLS SNI/Host metadata. Deterministic tests cover address propagation and streamed response cleanup.
 
 ## Commits
 - `d6cd94b` — `docs: define ADSO reviewer architecture baseline` (architecture, infrastructure, AGENTS.md, ODD task record).
